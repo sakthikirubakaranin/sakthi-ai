@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakthi.ai — AI Engineering Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --surface: #0f0f18;
+    --panel: #15151f;
+    --accent: #00e5a0;
+    --muted: #3a3a52;
+    --text: #c8c8e0;
+    --text2: #7070a0;
+    --border: rgba(0,229,160,0.12);
+    --border2: rgba(255,255,255,0.06);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink); color: var(--text);
+    font-family: var(--font-body); font-size: 15px;
+    line-height: 1.6; min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 48px 48px; pointer-events: none; z-index: 0;
+  }
+  .orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; animation: drift 18s ease-in-out infinite alternate; }
+  .orb-1 { width: 500px; height: 500px; background: rgba(0,229,160,0.06); top: -100px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: rgba(0,255,255,0.04); bottom: 100px; right: -80px; animation-delay: -6s; }
+  .orb-3 { width: 300px; height: 300px; background: rgba(100,80,255,0.05); top: 40%; left: 50%; animation-delay: -12s; }
+  @keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(30px,20px) scale(1.05)} }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 0; background: rgba(10,10,15,0.75);
+    backdrop-filter: blur(20px); border-bottom: 1px solid var(--border2);
+  }
+  nav .inner { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav-badge { font-family: var(--font-mono); font-size: 11px; color: var(--accent); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
+  .hero { padding: 160px 0 80px; text-align: center; position: relative; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px;
+    padding: 6px 16px; border: 1px solid var(--border); border-radius: 20px;
+    background: rgba(0,229,160,0.04); animation: fadeUp 0.8s ease both;
+  }
+  .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  .hero h1 {
+    font-family: var(--font-display); font-size: clamp(44px, 7vw, 84px);
+    font-weight: 800; line-height: 1.0; letter-spacing: -3px; color: #fff;
+    margin-bottom: 24px; animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 .ac { color: var(--accent); }
+  .hero h1 .ol { -webkit-text-stroke: 1px rgba(255,255,255,0.3); color: transparent; }
+  .hero-sub { font-size: 17px; color: var(--text2); max-width: 540px; margin: 0 auto 48px; line-height: 1.7; font-weight: 300; animation: fadeUp 0.8s 0.2s ease both; }
+  .hero-stats { display: flex; justify-content: center; gap: 48px; margin-bottom: 64px; animation: fadeUp 0.8s 0.3s ease both; }
+  .stat { text-align: center; }
+  .stat-num { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: #fff; }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .scroll-hint { display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: 2px; animation: fadeUp 0.8s 0.5s ease both; }
+  .scroll-line { width: 1px; height: 48px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollDrop 2s ease-in-out infinite; }
+  @keyframes scrollDrop { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform:scaleY(1);transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+  .features { padding: 48px 0; border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); margin-bottom: 80px; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  .feature { display: flex; align-items: flex-start; gap: 14px; }
+  .feature-icon { width: 36px; height: 36px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(0,229,160,0.04); }
+  .feature-text h4 { font-family: var(--font-display); font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .feature-text p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  #form-section { padding: 0 0 120px; }
+  .section-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+  .section-title { font-family: var(--font-display); font-size: clamp(28px, 4vw, 44px); font-weight: 700; color: #fff; letter-spacing: -1.5px; margin-bottom: 8px; line-height: 1.1; }
+  .section-sub { font-size: 15px; color: var(--text2); margin-bottom: 48px; font-weight: 300; }
+  .form-wrap { display: grid; grid-template-columns: 1fr 1.5fr; gap: 0; background: var(--panel); border: 1px solid var(--border2); border-radius: 20px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+  .form-left { background: linear-gradient(160deg, #0d1a14 0%, #0a0a0f 100%); padding: 48px 40px; display: flex; flex-direction: column; border-right: 1px solid var(--border2); position: relative; overflow: hidden; }
+  .form-left::before { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,160,0.1) 0%, transparent 70%); bottom: -80px; left: -80px; pointer-events: none; }
+  .form-left-tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 24px; }
+  .form-left h3 { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 16px; }
+  .form-left p { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 32px; }
+  .left-items { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+  .left-items li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); }
+  .check { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,229,160,0.1); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; color: var(--accent); }
+  .trust-row { display: flex; gap: 10px; margin-top: auto; flex-wrap: wrap; }
+  .trust-chip { font-family: var(--font-mono); font-size: 10px; color: var(--text2); padding: 4px 10px; border: 1px solid var(--border2); border-radius: 12px; }
+  .form-right { padding: 48px 44px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--text2); text-transform: uppercase; }
+  label .req { color: var(--accent); margin-left: 2px; }
+  input, select, textarea {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border2);
+    border-radius: 10px; color: #fff; font-family: var(--font-body);
+    font-size: 14px; padding: 12px 16px; outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; width: 100%;
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(0,229,160,0.4); background: rgba(0,229,160,0.04);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.06);
+  }
+  input.error { border-color: rgba(255,100,100,0.6) !important; }
+  select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2370709A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  select option { background: #1a1a28; color: #fff; }
+  textarea { resize: vertical; min-height: 90px; }
+  .range-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .range-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--text2); }
+  .range-value { color: var(--accent); font-weight: 500; }
+  input[type=range] {
+    padding: 0; background: none; border: none; box-shadow: none;
+    -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill,25%), var(--muted) var(--fill,25%), var(--muted) 100%);
+  }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--ink); cursor: pointer; box-shadow: 0 0 8px rgba(0,229,160,0.5); transition: transform 0.15s; }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range]:focus { box-shadow: none; border: none; background: none; }
+  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill-label { cursor: pointer; }
+  .pill-label input { display: none; }
+  .pill { display: inline-block; padding: 6px 14px; border: 1px solid var(--border2); border-radius: 20px; font-family: var(--font-mono); font-size: 11px; color: var(--text2); transition: all 0.15s; user-select: none; }
+  .pill-label input:checked + .pill { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.08); }
+  .pill:hover { border-color: rgba(0,229,160,0.3); color: var(--text); }
+  .submit-row { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .btn-submit {
+    width: 100%; background: var(--accent); color: #000; border: none;
+    border-radius: 12px; padding: 15px 32px; font-family: var(--font-display);
+    font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px;
+    transition: transform 0.15s, box-shadow 0.2s; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(0,229,160,0.35); }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .privacy-note { font-size: 11px; color: var(--text2); line-height: 1.6; text-align: center; }
+  .privacy-note a { color: var(--accent); text-decoration: none; }
+  .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 40px; gap: 16px; }
+  .success-overlay.show { display: flex; }
+  .success-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,229,160,0.1); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 28px; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+  @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+  .success-overlay h3 { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: #fff; }
+  .success-overlay p { font-size: 14px; color: var(--text2); max-width: 380px; }
+  .success-token { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: rgba(0,229,160,0.06); border: 1px solid var(--border); padding: 8px 20px; border-radius: 20px; }
+  .pipeline { padding: 80px 0; border-top: 1px solid var(--border2); }
+  .pipeline-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border2); border: 1px solid var(--border2); border-radius: 16px; overflow: hidden; margin-top: 48px; }
+  .pipeline-step { background: var(--panel); padding: 28px 24px; transition: background 0.2s; }
+  .pipeline-step:hover { background: rgba(0,229,160,0.03); }
+  .step-num { font-family: var(--font-mono); font-size: 10px; color: var(--accent); letter-spacing: 2px; margin-bottom: 12px; }
+  .step-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .step-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  footer { padding: 40px 0; border-top: 1px solid var(--border2); }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #fff; }
+  .footer-logo span { color: var(--accent); }
+  .footer-copy { font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: 1px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(0,0,0,0.2); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-text { display: none; }
+  .toast { position: fixed; bottom: 32px; right: 32px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; font-family: var(--font-mono); font-size: 12px; color: var(--accent); box-shadow: 0 8px 32px rgba(0,0,0,0.4); transform: translateY(80px); opacity: 0; z-index: 999; transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275); pointer-events: none; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { color: #ff6b6b; border-color: rgba(255,107,107,0.3); }
+  @media(max-width:768px) {
+    .form-wrap { grid-template-columns: 1fr; }
+    .form-left { border-right: none; border-bottom: 1px solid var(--border2); padding: 36px 28px; }
+    .form-right { padding: 36px 28px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; }
+    .hero h1 { letter-spacing: -2px; }
+    .container { padding: 0 20px; }
+    nav .inner { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="toast" id="toast"></div>
+
+<nav>
+  <div class="inner">
+    <div class="logo">Sakthi<span>.ai</span></div>
+    <div class="nav-badge">// PRESALES INTELLIGENCE</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow"><div class="dot"></div>Now accepting early access</div>
+    <h1>AI that thinks<br><span class="ac">before</span> your<br><span class="ol">sales team</span></h1>
+    <p class="hero-sub">Sakthi.ai is an autonomous presales intelligence pipeline — enriching leads, scoring intent, and delivering personalized intel to your team in seconds.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">AI Agents</div></div>
+      <div class="stat"><div class="stat-num">&lt;30s</div><div class="stat-label">Enrichment</div></div>
+      <div class="stat"><div class="stat-num">92%</div><div class="stat-label">ICP accuracy</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Scale</div></div>
+    </div>
+    <div class="scroll-hint"><div class="scroll-line"></div>APPLY FOR ACCESS</div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature"><div class="feature-icon">⚡</div><div class="feature-text"><h4>Instant enrichment</h4><p>Apollo, Clearbit & LinkedIn data in under 10 seconds</p></div></div>
+      <div class="feature"><div class="feature-icon">🎯</div><div class="feature-text"><h4>ICP scoring</h4><p>Claude-powered fit analysis against your ideal customer profile</p></div></div>
+      <div class="feature"><div class="feature-icon">🔍</div><div class="feature-text"><h4>Deep research</h4><p>Company news, hiring signals & tech stack extracted automatically</p></div></div>
+      <div class="feature"><div class="feature-icon">✉️</div><div class="feature-text"><h4>Auto-personalization</h4><p>Tailored email + talk track generated per lead, ready to send</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="form-section">
+  <div class="container">
+    <div class="section-label">// EARLY ACCESS</div>
+    <div class="section-title">Apply for your<br>intelligence pipeline</div>
+    <div class="section-sub">Tell us about your team — we'll configure your AI agents accordingly.</div>
+    <div class="form-wrap">
+      <div class="form-left">
+        <div class="form-left-tag">// WHAT YOU GET</div>
+        <h3>Your personal presales AI workforce</h3>
+        <p>Six specialized agents work in parallel the moment a lead enters your pipeline.</p>
+        <ul class="left-items">
+          <li><div class="check">✓</div>Lead enrichment from 12+ data sources</li>
+          <li><div class="check">✓</div>Real-time ICP scoring & tier routing</li>
+          <li><div class="check">✓</div>Company research & intent signals</li>
+          <li><div class="check">✓</div>Personalized outreach generation</li>
+          <li><div class="check">✓</div>CRM sync (HubSpot / Zoho / Salesforce)</li>
+          <li><div class="check">✓</div>Slack alerts to the right rep instantly</li>
+        </ul>
+        <div class="trust-row">
+          <div class="trust-chip">SOC 2 ready</div>
+          <div class="trust-chip">GDPR compliant</div>
+          <div class="trust-chip">No cold calls</div>
+        </div>
+      </div>
+
+      <div class="form-right" id="form-panel">
+        <form id="lead-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label>First name <span class="req">*</span></label>
+              <input type="text" name="first_name" placeholder="Sakthi" required autocomplete="given-name">
+            </div>
+            <div class="field">
+              <label>Last name <span class="req">*</span></label>
+              <input type="text" name="last_name" placeholder="Kirubakaran" required autocomplete="family-name">
+            </div>
+            <div class="field full">
+              <label>Work email <span class="req">*</span></label>
+              <input type="email" name="email" placeholder="you@company.com" required autocomplete="email">
+            </div>
+            <div class="field">
+              <label>Company <span class="req">*</span></label>
+              <input type="text" name="company" placeholder="Acme Corp" required>
+            </div>
+            <div class="field">
+              <label>Job title <span class="req">*</span></label>
+              <input type="text" name="title" placeholder="VP of Sales" required>
+            </div>
+            <div class="field">
+              <label>Company size <span class="req">*</span></label>
+              <select name="company_size" required>
+                <option value="">Select size</option>
+                <option>1–10</option><option>11–50</option><option>51–200</option>
+                <option>201–500</option><option>501–1000</option><option>1000+</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Monthly lead volume</label>
+              <select name="lead_volume">
+                <option value="">Select range</option>
+                <option>Less than 50</option><option>50–200</option>
+                <option>200–500</option><option>500–2000</option><option>2000+</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Current CRM</label>
+              <div class="pill-group">
+                <label class="pill-label"><input type="radio" name="crm" value="HubSpot"><span class="pill">HubSpot</span></label>
+                <label class="pill-label"><input type="radio" name="crm" value="Salesforce"><span class="pill">Salesforce</span></label>
+                <label class="pill-label"><input type="radio" name="crm" value="Zoho CRM"><span class="pill">Zoho CRM</span></label>
+                <label class="pill-label"><input type="radio" name="crm" value="Pipedrive"><span class="pill">Pipedrive</span></label>
+                <label class="pill-label"><input type="radio" name="crm" value="None"><span class="pill">None yet</span></label>
+                <label class="pill-label"><input type="radio" name="crm" value="Other"><span class="pill">Other</span></label>
+              </div>
+            </div>
+            <div class="field full">
+              <label>Primary use case <span class="req">*</span></label>
+              <select name="use_case" required>
+                <option value="">What do you need most?</option>
+                <option value="lead_enrichment">Enrich inbound leads automatically</option>
+                <option value="icp_scoring">Score & route leads to right rep</option>
+                <option value="research">Deep company & buyer research</option>
+                <option value="personalization">Auto-generate personalized outreach</option>
+                <option value="full_pipeline">Full presales intelligence pipeline</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Budget range (monthly USD)</label>
+              <div class="range-wrap">
+                <div class="range-labels"><span>$500</span><span class="range-value" id="budget-label">$2,500/mo</span><span>$10,000+</span></div>
+                <input type="range" name="budget_range" id="budget-slider" min="500" max="10000" step="500" value="2500">
+              </div>
+            </div>
+            <div class="field full">
+              <label>Biggest presales challenge</label>
+              <textarea name="challenge" placeholder="e.g. Leads come in but reps have no context before the call..."></textarea>
+            </div>
+            <div class="field">
+              <label>Phone (optional)</label>
+              <input type="tel" name="phone" placeholder="+91 98765 43210" autocomplete="tel">
+            </div>
+            <div class="field">
+              <label>How did you hear about us?</label>
+              <select name="source">
+                <option value="">Select source</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="twitter_x">X / Twitter</option>
+                <option value="referral">Referral</option>
+                <option value="google">Google search</option>
+                <option value="event">Conference / Event</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="full submit-row">
+              <button type="submit" class="btn-submit" id="submit-btn">
+                <span class="btn-text">Request Early Access →</span>
+                <span class="spinner"></span>
+              </button>
+              <p class="privacy-note">By submitting you agree to our <a href="#">Privacy Policy</a>. Your data triggers our AI pipeline — it's the product in action. We never sell your information.</p>
+            </div>
+          </div>
+        </form>
+        <div class="success-overlay" id="success-panel">
+          <div class="success-icon">✓</div>
+          <h3>You're in the pipeline.</h3>
+          <p>Your submission just triggered our AI agents. Check your inbox — a confirmation is on its way. Our team will follow up within 24 hours.</p>
+          <div class="success-token" id="lead-token">Ref: —</div>
+          <p style="font-size:12px;color:var(--text2)">You'll receive a confirmation at the email you provided.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pipeline">
+  <div class="container">
+    <div class="section-label">// HOW IT WORKS</div>
+    <div class="section-title">Your lead → Intel in seconds</div>
+    <div class="pipeline-steps">
+      <div class="pipeline-step"><div class="step-num">01 //</div><div class="step-title">Form submits</div><div class="step-desc">Lead data hits your Vercel API route instantly</div></div>
+      <div class="pipeline-step"><div class="step-num">02 //</div><div class="step-title">Email sent</div><div class="step-desc">Full lead details delivered to Zoho Mail immediately</div></div>
+      <div class="pipeline-step"><div class="step-num">03 //</div><div class="step-title">HubSpot ticket</div><div class="step-desc">Contact + deal created automatically in your CRM</div></div>
+      <div class="pipeline-step"><div class="step-num">04 //</div><div class="step-title">AI agents run</div><div class="step-desc">Claude scores, researches & drafts personalized pitch</div></div>
+      <div class="pipeline-step"><div class="step-num">05 //</div><div class="step-title">Rep alerted</div><div class="step-desc">Full intel brief ready before the first call</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">Sakthi<span>.ai</span></div>
+      <div class="footer-copy">© 2025 SAKTHI.AI — PRESALES INTELLIGENCE PLATFORM</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Budget slider
+  const slider = document.getElementById('budget-slider');
+  const budgetLabel = document.getElementById('budget-label');
+  function updateSlider() {
+    const v = parseInt(slider.value);
+    const pct = ((v - 500) / (10000 - 500)) * 100;
+    slider.style.setProperty('--fill', pct + '%');
+    budgetLabel.textContent = v >= 10000 ? '$10,000+/mo' : '$' + v.toLocaleString() + '/mo';
+  }
+  slider.addEventListener('input', updateSlider);
+  updateSlider();
+
+  // Toast
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => { t.className = 'toast'; }, 5000);
+  }
+
+  // Token
+  function genToken() {
+    return 'SKT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
+  }
+
+  // Form submit
+  document.getElementById('lead-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('submit-btn');
+
+    // Validate required fields
+    let valid = true;
+    form.querySelectorAll('[required]').forEach(el => {
+      el.classList.remove('error');
+      if (!el.value.trim()) {
+        el.classList.add('error');
+        valid = false;
+        el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+      }
+    });
+    if (!valid) { showToast('// Please fill all required fields', true); return; }
+
+    const email = form.querySelector('[name=email]').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('// Enter a valid work email', true); return;
+    }
+
+    const token = genToken();
+    const payload = {
+      first_name:   form.querySelector('[name=first_name]').value.trim(),
+      last_name:    form.querySelector('[name=last_name]').value.trim(),
+      email:        email.trim().toLowerCase(),
+      company:      form.querySelector('[name=company]').value.trim(),
+      title:        form.querySelector('[name=title]').value.trim(),
+      company_size: form.querySelector('[name=company_size]').value,
+      lead_volume:  form.querySelector('[name=lead_volume]').value,
+      crm:          (form.querySelector('[name=crm]:checked') || {}).value || 'Not selected',
+      use_case:     form.querySelector('[name=use_case]').value,
+      budget_range: '$' + form.querySelector('[name=budget_range]').value + '/mo',
+      challenge:    form.querySelector('[name=challenge]').value.trim(),
+      phone:        form.querySelector('[name=phone]').value.trim(),
+      source:       form.querySelector('[name=source]').value,
+      submitted_at: new Date().toISOString(),
+      ref_token:    token,
+    };
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        document.getElementById('lead-token').textContent = 'Ref: ' + token;
+        form.style.display = 'none';
+        document.getElementById('success-panel').classList.add('show');
+        showToast('// Pipeline activated — ref: ' + token);
+      } else {
+        throw new Error(data.error || 'Server error ' + res.status);
+      }
+    } catch (err) {
+      showToast('// Error: ' + err.message + '. Please try again.', true);
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

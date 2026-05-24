@@ -1,0 +1,14 @@
+{
+  "name": "sakthi-ai",
+  "version": "1.0.0",
+  "description": "Sakthi.ai — Presales Intelligence Lead Capture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemailer": "^8.0.7"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
