@@ -286,7 +286,7 @@ export default async function handler(req, res) {
     }
 
     // Fire the AI pipeline in the background (non-blocking)
-    fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/pipeline`, {
+    fetch(`https://sakthi-ai.vercel.app/api/pipeline`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(lead),
