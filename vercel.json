@@ -19,6 +19,9 @@
   "functions": {
     "api/leads.js": {
       "maxDuration": 30
+    },
+    "api/pipeline.js": {
+      "maxDuration": 300
     }
   }
 }

@@ -293,13 +293,14 @@ async function agentUpdateHubSpot(lead, enrichment, scoring, research, outreach)
     'Content-Type': 'application/json',
   };
 
+  // Search by dealname which contains the ref_token
   const searchRes = await fetch('https://api.hubapi.com/crm/v3/objects/deals/search', {
     method: 'POST',
     headers,
     body: JSON.stringify({
       filterGroups: [{
         filters: [{
-          propertyName: 'description',
+          propertyName: 'dealname',
           operator: 'CONTAINS_TOKEN',
           value: lead.ref_token,
         }],
@@ -311,73 +312,145 @@ async function agentUpdateHubSpot(lead, enrichment, scoring, research, outreach)
   let dealId = null;
   if (searchRes.ok) {
     const searchData = await searchRes.json();
+    console.log('[Agent 5] Deal search results:', JSON.stringify(searchData.results?.map(r => ({ id: r.id, name: r.properties?.dealname }))));
     dealId = searchData.results?.[0]?.id;
+  } else {
+    const errText = await searchRes.text();
+    console.error('[Agent 5] Deal search failed:', searchRes.status, errText);
   }
 
   if (!dealId) {
-    console.warn('[Agent 5] Deal not found for ref:', lead.ref_token);
+    console.warn('[Agent 5] Deal not found for ref:', lead.ref_token, '— skipping HubSpot update');
     return;
   }
 
-  const tierColor = { A: '🟢', B: '🔵', C: '🟡', D: '🔴' };
+  const tierColor = { A: '#00c48c', B: '#0091ae', C: '#f5c400', D: '#f2547d' };
+  const tierEmoji = { A: '🟢', B: '🔵', C: '🟡', D: '🔴' };
+  const color = tierColor[scoring.tier] || '#888';
+
   const notes = `
-${tierColor[scoring.tier] || '⚪'} ICP TIER: ${scoring.tier} | SCORE: ${scoring.icp_score}/100
-Action: ${scoring.recommended_action} | Follow-up: ${scoring.follow_up_timing}
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
 
-── SCORING BREAKDOWN ──
-Company fit: ${scoring.score_breakdown.company_fit}/100
-Title fit: ${scoring.score_breakdown.title_fit}/100
-Use case fit: ${scoring.score_breakdown.use_case_fit}/100
-Budget fit: ${scoring.score_breakdown.budget_fit}/100
-Urgency fit: ${scoring.score_breakdown.urgency_fit}/100
+  <h2 style="background:${color}; color:#fff; padding: 10px 16px; border-radius: 6px; margin: 0 0 16px 0;">
+    ${tierEmoji[scoring.tier]} ICP Tier ${scoring.tier} &nbsp;|&nbsp; Score: ${scoring.icp_score}/100
+  </h2>
 
-Reasoning: ${scoring.tier_reasoning}
+  <table style="width:100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr>
+      <td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight: bold; width: 35%;">Recommended Action</td>
+      <td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.recommended_action}</td>
+    </tr>
+    <tr>
+      <td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight: bold;">Follow-up Timing</td>
+      <td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.follow_up_timing}</td>
+    </tr>
+    <tr>
+      <td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight: bold;">Tier Reasoning</td>
+      <td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.tier_reasoning}</td>
+    </tr>
+  </table>
 
-── COMPANY INTEL ──
-Industry: ${enrichment.industry} | Stage: ${enrichment.company_stage}
-Business model: ${enrichment.business_model}
-Tech stack: ${enrichment.likely_tech_stack.join(', ')}
-${research.company_summary}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">📊 Scoring Breakdown</h3>
+  <table style="width:100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr style="background:#0091ae; color:#fff;">
+      <th style="padding: 6px 12px; text-align:left;">Dimension</th>
+      <th style="padding: 6px 12px; text-align:left;">Score</th>
+    </tr>
+    <tr><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">Company Fit</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.score_breakdown.company_fit}/100</td></tr>
+    <tr style="background:#f5f8fa;"><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">Title Fit</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.score_breakdown.title_fit}/100</td></tr>
+    <tr><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">Use Case Fit</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.score_breakdown.use_case_fit}/100</td></tr>
+    <tr style="background:#f5f8fa;"><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">Budget Fit</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.score_breakdown.budget_fit}/100</td></tr>
+    <tr><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">Urgency Fit</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${scoring.score_breakdown.urgency_fit}/100</td></tr>
+  </table>
 
-── GROWTH SIGNALS ──
-${research.growth_signals.map(s => `• ${s}`).join('\n')}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">🏢 Company Intel</h3>
+  <table style="width:100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold; width:35%;">Industry</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${enrichment.industry}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">Stage</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${enrichment.company_stage}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">Business Model</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${enrichment.business_model}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">Tech Stack</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${enrichment.likely_tech_stack.join(', ')}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">Summary</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${research.company_summary}</td></tr>
+  </table>
 
-── PAIN POINTS ──
-${research.pain_points.map(p => `• ${p}`).join('\n')}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">📈 Growth Signals</h3>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px;">
+    ${research.growth_signals.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
+  </ul>
 
-── CONVERSATION HOOKS ──
-${research.conversation_hooks.map(h => `• ${h}`).join('\n')}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">😣 Pain Points</h3>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px;">
+    ${research.pain_points.map(p => `<li style="margin-bottom: 4px;">${p}</li>`).join('')}
+  </ul>
 
-── OUTREACH READY ──
-Subject: ${outreach.subject_line}
-LinkedIn: ${outreach.linkedin_message}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">💬 Conversation Hooks</h3>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px;">
+    ${research.conversation_hooks.map(h => `<li style="margin-bottom: 4px;">${h}</li>`).join('')}
+  </ul>
 
-── RISK FLAGS ──
-${research.risk_flags.length > 0 ? research.risk_flags.map(f => `⚠️ ${f}`).join('\n') : '✅ No risk flags'}
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">✉️ Outreach Ready</h3>
+  <table style="width:100%; border-collapse: collapse; margin-bottom: 16px;">
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold; width:35%;">Email Subject</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${outreach.subject_line}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">LinkedIn Message</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${outreach.linkedin_message}</td></tr>
+    <tr><td style="padding: 6px 12px; background:#f5f8fa; border: 1px solid #e0e0e0; font-weight:bold;">Key Value Props</td><td style="padding: 6px 12px; border: 1px solid #e0e0e0;">${outreach.key_value_props.join(' · ')}</td></tr>
+  </table>
 
-Generated by Sakthi.ai Pipeline | Ref: ${lead.ref_token}
-  `.trim();
+  <h3 style="color: #0091ae; border-bottom: 2px solid #0091ae; padding-bottom: 4px;">⚠️ Risk Flags</h3>
+  ${research.risk_flags.length > 0
+    ? `<ul style="margin: 0 0 16px 0; padding-left: 20px;">${research.risk_flags.map(f => `<li style="color:#f2547d; margin-bottom:4px;">⚠️ ${f}</li>`).join('')}</ul>`
+    : `<p style="color: #00c48c; margin: 0 0 16px 0;">✅ No risk flags identified</p>`
+  }
 
-  await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}`, {
+  <p style="font-size: 11px; color: #999; border-top: 1px solid #e0e0e0; padding-top: 8px; margin-top: 16px;">
+    Generated by Sakthi.ai Pipeline | Ref: ${lead.ref_token}
+  </p>
+
+</div>`.trim();
+
+  // 1 — Update deal priority
+  const patchRes = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify({
       properties: {
-        description: notes,
         hs_priority: scoring.tier === 'A' ? 'high' : scoring.tier === 'B' ? 'medium' : 'low',
       },
     }),
   });
+  if (!patchRes.ok) {
+    console.error('[Agent 5] Deal PATCH failed:', patchRes.status, await patchRes.text());
+  } else {
+    console.log('[Agent 5] Deal priority updated');
+  }
 
-  await fetch('https://api.hubapi.com/engagements/v1/engagements', {
+  // 2 — Create HTML note via engagements v1
+  const noteRes = await fetch('https://api.hubapi.com/engagements/v1/engagements', {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      engagement: { active: true, type: 'NOTE' },
-      associations: { dealIds: [parseInt(dealId)] },
-      metadata: { body: notes },
+      engagement: {
+        active: true,
+        type: 'NOTE',
+        timestamp: Date.now(),
+      },
+      associations: {
+        dealIds: [parseInt(dealId)],
+        contactIds: [],
+        companyIds: [],
+        ownerIds: [],
+      },
+      metadata: {
+        body: notes,
+      },
     }),
   });
+
+  if (!noteRes.ok) {
+    const noteErr = await noteRes.text();
+    console.error('[Agent 5] Note creation failed:', noteRes.status, noteErr);
+  } else {
+    const noteData = await noteRes.json();
+    console.log('[Agent 5] Note created:', noteData.engagement?.id);
+  }
 
   console.log(`[Agent 5] HubSpot deal ${dealId} updated with AI intel`);
   return dealId;
